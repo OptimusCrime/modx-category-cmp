@@ -10,17 +10,17 @@ Place the `assets/` and `core/` directories in your MODX installation similar to
 
 Do this under the settings menu in your MODX manager (the cog wheel) and Namespace. Press Create New.
 
-Name: testing
-Core path: {core_path}components/testing/
-Assets path: {assets_path}components/testing/
+- Name: testing
+- Core path: {core_path}components/testing/
+- Assets path: {assets_path}components/testing/
 
 ### Create a new menu for the components
 
 This is also in the settings menu and Menus. Press Create Menu.
 
-Lexicon Key: testing
-Action: home
-Namespace: testing
+- Lexicon Key: testing
+- Action: home
+- Namespace: testing
 
 Save and clear cache.
 
@@ -28,7 +28,7 @@ Save and clear cache.
 
 This can be done with the SQL query (for MySQL):
 
-```
+```sql
 CREATE TABLE IF NOT EXISTS `testing_category` (
   `id` int(10) NOT NULL,
   `parent` int(10) DEFAULT NULL,
