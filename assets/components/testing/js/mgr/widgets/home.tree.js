@@ -9,17 +9,17 @@
 MODx.tree.Menu = function(config) {
     config = config || {};
     Ext.applyIf(config,{
-        root_id: 'n_'
+        root_id: null
         ,root_name: _('menu_top')
-        ,rootVisible: true
+        ,rootVisible: false
         ,expandFirst: true
         ,enableDrag: true
         ,enableDrop: true
-        ,url: MODx.config.connector_url
-        ,action: 'system/menu/getNodes'
-        ,sortAction: 'system/menu/sort'
+        ,url: Testing.config.connectorUrl
+        ,action: 'mgr/getNodes'
+        ,sortAction: 'mgr/sort'
         ,primaryKey: 'text'
-        ,useDefaultToolbar: true
+        ,useDefaultToolbar: false
         ,ddGroup: 'modx-menu'
         ,tbar: [{
             text: _('menu_create')
