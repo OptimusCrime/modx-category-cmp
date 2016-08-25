@@ -13,9 +13,9 @@ class TestingCategoryGetNodesProcessor extends modObjectGetListProcessor {
             $parent = explode('_', $_POST['node'])[1];
         }
 
-        $c->where(array(
+        $c->where([
             'parent' => $parent
-        ));
+        ]);
 
         return parent::prepareQueryBeforeCount($c);
     }
@@ -27,7 +27,7 @@ class TestingCategoryGetNodesProcessor extends modObjectGetListProcessor {
         ]);
         $childrenCount = $this->modx->getCount('TestingCategory', $c);
 
-        $objectArray = array(
+        $objectArray = [
             'text' => $object->get('name'),
             'id' => 'n_' . $object->get('id'),
             'cls' => 'icon-menu',
@@ -36,7 +36,7 @@ class TestingCategoryGetNodesProcessor extends modObjectGetListProcessor {
             'pk' => $object->get('id'),
             'leaf' => ($object->get('parent') != null),
             'data' => $object->toArray()
-        );
+        ];
 
         if ($childrenCount < 1) {
             // Workaround for leaf record not to display "arrows"
