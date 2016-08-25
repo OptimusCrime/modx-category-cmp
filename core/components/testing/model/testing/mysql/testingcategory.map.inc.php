@@ -13,7 +13,6 @@ $xpdo_meta_map['TestingCategory']= array (
     'parent' => 0,
     'name' => NULL,
     'menuindex' => 0,
-    'deleted' => 0,
   ),
   'fieldMeta' => 
   array (
@@ -43,14 +42,6 @@ $xpdo_meta_map['TestingCategory']= array (
     array (
       'dbtype' => 'int',
       'precision' => '2',
-      'phptype' => 'integer',
-      'null' => false,
-      'default' => 0,
-    ),
-    'deleted' => 
-    array (
-      'dbtype' => 'tinyint',
-      'precision' => '1',
       'phptype' => 'integer',
       'null' => false,
       'default' => 0,

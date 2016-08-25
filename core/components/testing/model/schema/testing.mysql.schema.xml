@@ -5,6 +5,5 @@
         <field key="parent" dbtype="int" precision="10" phptype="integer" null="true" default="null" />
         <field key="name" dbtype="varchar" precision="100" phptype="string" null="false" />
         <field key="menuindex" dbtype="int" precision="2" phptype="integer" null="false" default="0" />
-        <field key="deleted" dbtype="tinyint" precision="1" phptype="integer" null="false" default="0" />
     </object>
 </model>
