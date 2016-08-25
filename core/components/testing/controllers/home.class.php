@@ -11,7 +11,7 @@ class TestingHomeManagerController extends modExtraManagerController {
         $this->addJavascript($this->testing->config['jsUrl'] . 'mgr/testing.class.js');
         $this->addHtml('<script type="text/javascript">
             Ext.onReady(function() {
-                Testing.config = '.$this->modx->toJSON($this->testing->config).';
+                Testing.config = ' . $this->modx->toJSON($this->testing->config) . ';
             });
         </script>');
 
@@ -26,12 +26,10 @@ class TestingHomeManagerController extends modExtraManagerController {
         return true;
     }
 
-    public function process(array $scriptProperties = array()) {
-    }
-
     public function getPageTitle() {
         return $this->modx->lexicon('testing');
     }
+    
     public function loadCustomCssJs() {
         $this->addJavascript($this->testing->config['jsUrl'] . 'mgr/widgets/home.panel.js');
         $this->addJavascript($this->testing->config['jsUrl'] . 'mgr/widgets/home.tree.js');

@@ -11,7 +11,7 @@ MODx.tree.Menu = function(config) {
     Ext.applyIf(config,{
         root_id: 'n_'
         ,root_name: _('menu_top')
-        ,rootVisible: true // false
+        ,rootVisible: true
         ,expandFirst: true
         ,enableDrag: true
         ,enableDrop: true
@@ -19,7 +19,7 @@ MODx.tree.Menu = function(config) {
         ,action: 'system/menu/getNodes'
         ,sortAction: 'system/menu/sort'
         ,primaryKey: 'text'
-        ,useDefaultToolbar: true // false
+        ,useDefaultToolbar: true
         ,ddGroup: 'modx-menu'
         ,tbar: [{
             text: _('menu_create')

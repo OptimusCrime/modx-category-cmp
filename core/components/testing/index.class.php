@@ -7,10 +7,10 @@ abstract class TestingManagerController extends modManagerController {
     public function initialize() {
         $this->testing = new Testing($this->modx);
 
-        $this->addJavascript($this->testing->config['jsUrl'].'mgr/testing.class.js');
+        $this->addJavascript($this->testing->config['jsUrl'] . 'mgr/testing.class.js');
         $this->addHtml('<script type="text/javascript">
         Ext.onReady(function() {
-            Testing.config = '.$this->modx->toJSON($this->testing->config).';
+            Testing.config = ' . $this->modx->toJSON($this->testing->config) . ';
         });
         </script>');
         return parent::initialize();
@@ -22,9 +22,5 @@ abstract class TestingManagerController extends modManagerController {
 
     public function checkPermissions() {
         return true;
-    }
-
-    public function process(array $scriptProperties = array()) {
-
     }
 }
