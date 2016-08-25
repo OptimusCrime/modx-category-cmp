@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model package="testing" baseClass="xPDOSimpleObject" platform="mysql" defaultEngine="MyISAM" version="1.1">
+    <object class="TestingCategory" table="testing_category" extends="xPDOSimpleObject">
+    <field key="id" dbtype="int" precision="10" phptype="integer" null="false" />
+        <field key="parent" dbtype="int" precision="10" phptype="integer" null="true" default="null" />
+        <field key="name" dbtype="varchar" precision="100" phptype="string" null="false" />
+        <field key="menuindex" dbtype="int" precision="2" phptype="integer" null="false" default="0" />
+        <field key="deleted" dbtype="tinyint" precision="1" phptype="integer" null="false" default="0" />
+    </object>
+</model>
