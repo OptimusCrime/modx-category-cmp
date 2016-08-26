@@ -1,7 +1,7 @@
 /**
  * This is the part of the code the creates the actual tree by extending MODX.tree.Tree
  */
-MODx.tree.Menu = function(config) {
+Testing.tree.Categories = function(config) {
     config = config || {};
     Ext.applyIf(config,{
         root_id: null
@@ -23,9 +23,9 @@ MODx.tree.Menu = function(config) {
             ,scope: this
         }]
     });
-    MODx.tree.Menu.superclass.constructor.call(this,config);
+    Testing.tree.Categories.superclass.constructor.call(this,config);
 };
-Ext.extend(MODx.tree.Menu, MODx.tree.Tree, {
+Ext.extend(Testing.tree.Categories, MODx.tree.Tree, {
     windows: {}
 
     ,createCategory: function(n,e) {
@@ -110,7 +110,7 @@ Ext.extend(MODx.tree.Menu, MODx.tree.Tree, {
         return m;
     }
 });
-Ext.reg('modx-tree-menu',MODx.tree.Menu);
+Ext.reg('testing-tree-categories', Testing.tree.Categories);
 
 /**
  * This code creates the popup window that allows us to create new categories
