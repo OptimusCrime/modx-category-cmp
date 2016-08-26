@@ -6,10 +6,8 @@ class TestingCategoryGetNodesProcessor extends modObjectGetListProcessor {
     public $defaultSortField = 'menuindex';
 
     public function prepareQueryBeforeCount(xPDOQuery $c) {
-        if ($_POST['node'] == 'root') {
-            $parent = null;
-        }
-        else {
+        $parent = null;
+        if ($_POST['node'] != 'root') {
             $parent = explode('_', $_POST['node'])[1];
         }
 
