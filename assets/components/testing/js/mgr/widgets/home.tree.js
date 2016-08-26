@@ -77,17 +77,20 @@ Ext.extend(MODx.tree.Menu, MODx.tree.Tree, {
         this.windows.update_category.show(e.target);
     }
 
-    ,removeMenu: function(n,e) {
+    ,removeCategory: function(n, e) {
         MODx.msg.confirm({
             title: _('warning')
-            ,text: _('menu_confirm_remove')
-            ,url: this.config.url
+            ,text: _('testing.category_remove_text')
+            ,url: Testing.config.connectorUrl
             ,params: {
-                action: 'system/menu/remove'
-                ,text: this.cm.activeNode.attributes.pk
+                action: 'mgr/remove'
+                ,id: this.cm.activeNode.attributes.pk
             }
             ,listeners: {
-                'success':{fn:this.refresh,scope:this}
+                'success':{
+                    fn: this.refresh
+                    ,scope: this
+                }
             }
         });
     }
@@ -102,8 +105,8 @@ Ext.extend(MODx.tree.Menu, MODx.tree.Tree, {
                 });
                 m.push('-');
                 m.push({
-                    text: _('menu_remove')
-                    ,handler: this.removeMenu
+                    text: _('testing.category_remove')
+                    ,handler: this.removeCategory
                 });
                 break;
             default:
