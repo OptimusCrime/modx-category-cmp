@@ -1,318 +1,225 @@
 /**
- * Generates a Tree for managing the Top Menu
- *
- * @class MODx.tree.Menu
- * @extends MODx.tree.Tree
- * @param {Object} config An object of options.
- * @xtype modx-tree-menu
+ * This is the part of the code the creates the actual tree by extending MODX.tree.Tree
  */
-MODx.tree.Menu = function(config) {
+Testing.tree.Categories = function(config) {
     config = config || {};
     Ext.applyIf(config,{
-        root_id: 'n_'
+        root_id: null
         ,root_name: _('menu_top')
-        ,rootVisible: true
+        ,rootVisible: false
         ,expandFirst: true
         ,enableDrag: true
         ,enableDrop: true
-        ,url: MODx.config.connector_url
-        ,action: 'system/menu/getNodes'
-        ,sortAction: 'system/menu/sort'
+        ,url: Testing.config.connectorUrl
+        ,action: 'mgr/getNodes'
+        ,sortAction: 'mgr/sort'
         ,primaryKey: 'text'
-        ,useDefaultToolbar: true
+        ,useDefaultToolbar: false
         ,ddGroup: 'modx-menu'
         ,tbar: [{
-            text: _('menu_create')
+            text: _('testing.category_create')
             ,cls:'primary-button'
-            ,handler: this.createMenu
+            ,handler: this.createCategory
             ,scope: this
         }]
     });
-    MODx.tree.Menu.superclass.constructor.call(this,config);
+    Testing.tree.Categories.superclass.constructor.call(this,config);
 };
-Ext.extend(MODx.tree.Menu, MODx.tree.Tree, {
+Ext.extend(Testing.tree.Categories, MODx.tree.Tree, {
     windows: {}
 
-    ,createMenu: function(n,e) {
+    ,createCategory: function(n,e) {
         var r = {
-            parent: ''
+            parent: null
         };
         if (this.cm && this.cm.activeNode && this.cm.activeNode.attributes && this.cm.activeNode.attributes.data) {
-            r['parent'] = this.cm.activeNode.attributes.data.text;
+            r['parent'] = this.cm.activeNode.attributes.data.id;
         }
-        if (!this.windows.create_menu) {
-            this.windows.create_menu = MODx.load({
-                xtype: 'modx-window-menu-create'
+        if (!this.windows.create_category) {
+            this.windows.create_category = MODx.load({
+                xtype: 'testing-window-category-create'
                 ,record: r
                 ,listeners: {
-                    'success': {fn:function(r) { this.refresh(); },scope:this}
+                    'success': {
+                        fn: function(r) {
+                            this.refresh(); 
+                        }
+                        ,scope:this
+                    }
                 }
             });
         }
-        this.windows.create_menu.reset();
-        this.windows.create_menu.setValues(r);
-        this.windows.create_menu.show(e.target);
+        this.windows.create_category.reset();
+        this.windows.create_category.setValues(r);
+        this.windows.create_category.show(e.target);
     }
 
-    ,updateMenu: function(n,e) {
+    ,updateCategory: function(n,e) {
         var r = this.cm.activeNode.attributes.data;
-        Ext.apply(r,{
-            action_id: r.action
-            ,new_text: r.text
+        Ext.apply(r, {
+            id: r.id
+            ,text: r.text
         });
-        this.windows.update_menu = MODx.load({
-            xtype: 'modx-window-menu-update'
+        
+        this.windows.update_category = MODx.load({
+            xtype: 'testing-window-category-update'
             ,record: r
             ,listeners: {
-                'success': {fn:function(r) { this.refresh(); },scope:this}
+                'success': {
+                    fn:function(r) {
+                        this.refresh(); 
+                    }
+                    ,scope:this
+                }
             }
         });
-        this.windows.update_menu.setValues(r);
-        this.windows.update_menu.show(e.target);
+        this.windows.update_category.setValues(r);
+        this.windows.update_category.show(e.target);
     }
 
-    ,removeMenu: function(n,e) {
+    ,removeCategory: function(n, e) {
         MODx.msg.confirm({
             title: _('warning')
-            ,text: _('menu_confirm_remove')
-            ,url: this.config.url
+            ,text: _('testing.category_remove_text')
+            ,url: Testing.config.connectorUrl
             ,params: {
-                action: 'system/menu/remove'
-                ,text: this.cm.activeNode.attributes.pk
+                action: 'mgr/remove'
+                ,id: this.cm.activeNode.attributes.pk
             }
             ,listeners: {
-                'success':{fn:this.refresh,scope:this}
+                'success':{
+                    fn: this.refresh
+                    ,scope: this
+                }
             }
         });
     }
 
-    ,getMenu: function(n,e) {
+    ,getMenu: function(n, e) {
         var m = [];
-        switch (n.attributes.type) {
-            case 'menu':
-                m.push({
-                    text: _('menu_update')
-                    ,handler: this.updateMenu
-                });
-                m.push('-');
-                m.push({
-                    text: _('menu_remove')
-                    ,handler: this.removeMenu
-                });
-                break;
-            default:
-                m.push({
-                    text: _('menu_create')
-                    ,handler: this.createMenu
-                });
-                break;
+        
+        // If the node we right click on has no parent, allow to create a category here
+        if (n.attributes.data.parent == null) {
+            m.push({
+                text: _('testing.category_create')
+                ,handler: this.createCategory
+            });
         }
+        
+        // We're always going to allow updating a category
+        m.push({
+            text: _('testing.category_update')
+            ,handler: this.updateCategory
+        });
+        
+        // This is simply a separator in the menu
+        m.push('-');
+        
+        // At the bottom we'll have the "dangerous" stuff
+        m.push({
+            text: _('testing.category_remove')
+            ,handler: this.removeCategory
+        });
+        
         return m;
     }
+    
+    ,_handleDrop: function(dropEvent) {
+        // Let's shortcut things
+        var drop_node = dropEvent.dropNode;
+        var traget_node = dropEvent.target;
+        
+        // If the event is "append" we are just adding a new child in a list, not ON a parent, hence we can ignore it
+        if (dropEvent.point == 'append') {
+            return false;
+        }
+        
+        // If our drop node has children AND the target node's parent is not the "root" we are attempting to drop at
+        // another node, which results in too many levels of categories. Simply returning false here will disable dropping
+        // in this position
+        if (traget_node.parentNode.id != 'root' && drop_node.childNodes.length > 0) {
+            return false;
+        }
+        
+        // This is just the code from modx.tree.js to implement some basic functionality
+        if (!Ext.isEmpty(drop_node.attributes.treeHandler)) {
+            var h = Ext.getCmp(drop_node.attributes.treeHandler);
+            if (h) {
+                return h.handleDrop(this, dropEvent);
+            }
+        }
+    }
 });
-Ext.reg('modx-tree-menu',MODx.tree.Menu);
+Ext.reg('testing-tree-categories', Testing.tree.Categories);
 
 /**
- * Generates the Create Menu window
- *
- * @class MODx.window.CreateMenu
- * @extends MODx.Window
- * @param {Object} config An object of options.
- * @xtype modx-window-menu-create
+ * This code creates the popup window that allows us to create new categories
  */
-MODx.window.CreateMenu = function(config) {
+Testing.window.CreateCategory = function(config) {
     config = config || {};
-    this.ident = config.ident || 'modx-cmenu-'+Ext.id();
-    Ext.applyIf(config,{
-        title: _('menu_create')
-        ,width: 600
-        // ,height: 400
-        ,url: MODx.config.connector_url
-        ,action: 'system/menu/create'
+    
+    Ext.applyIf(config, {
+        title: _('testing.category_create')
+        ,url: Testing.config.connectorUrl
+        ,action: 'mgr/create'
         ,fields: [{
-            xtype: 'modx-combo-menu'
+            fieldLabel: _('testing.parent')
             ,name: 'parent'
-            ,hiddenName: 'parent'
+            ,xtype: 'testing-combo-categories'
             ,anchor: '100%'
-            ,fieldLabel: _('parent')
         },{
-            layout: 'column'
-            ,border: false
-            ,style: 'padding-top: 15px;'
-            ,defaults: {
-                layout: 'form'
-                ,labelAlign: 'top'
-                ,anchor: '100%'
-                ,border: false
-            }
-            ,items: [{
-                columnWidth: .5
-                ,items: [{
-                    xtype: 'hidden'
-                    ,name: 'previous_text'
-                    ,value: config.record && config.record.text ? config.record.text : ''
-                },{
-                    fieldLabel: _('lexicon_key')
-                    ,description: MODx.expandHelp ? '' : _('lexicon_key_desc')
-                    ,name: 'text'
-                    ,xtype: 'textfield'
-                    ,allowBlank: false
-                    ,anchor: '100%'
-                    ,id: this.ident+'-text'
-                    //,readOnly: config.update ? true : false
-                },{
-                    xtype: MODx.expandHelp ? 'label' : 'hidden'
-                    ,forId: this.ident+'-text'
-                    ,html: _('lexicon_key_desc')
-                    ,cls: 'desc-under'
-                },{
-                    fieldLabel: _('description')
-                    ,description: MODx.expandHelp ? '' : _('description_desc')
-                    ,name: 'description'
-                    ,xtype: 'textfield'
-                    ,allowBlank: true
-                    ,anchor: '100%'
-                    ,id: this.ident+'-description'
-                },{
-                    xtype: MODx.expandHelp ? 'label' : 'hidden'
-                    ,forId: this.ident+'-description'
-                    ,html: _('description_desc')
-                    ,cls: 'desc-under'
-                },{
-                    fieldLabel: _('handler')
-                    ,description: MODx.expandHelp ? '' : _('handler_desc')
-                    ,name: 'handler'
-                    ,xtype: 'textarea'
-                    ,anchor: '100%'
-                    ,grow: false
-                    ,id: this.ident+'-handler'
-                },{
-                    xtype: MODx.expandHelp ? 'label' : 'hidden'
-                    ,forId: this.ident+'-handler'
-                    ,html: _('handler_desc')
-                    ,cls: 'desc-under'
-                },{
-                    fieldLabel: _('permissions')
-                    ,description: MODx.expandHelp ? '' : _('permissions_desc')
-                    ,name: 'permissions'
-                    ,xtype: 'textfield'
-                    ,anchor: '100%'
-                    ,id: this.ident+'-permissions'
-                },{
-                    xtype: MODx.expandHelp ? 'label' : 'hidden'
-                    ,forId: this.ident+'-permissions'
-                    ,html: _('permissions_desc')
-                    ,cls: 'desc-under'
-                }]
-            },{
-                columnWidth: .5
-                ,items: [{
-                    fieldLabel: _('action')
-                    ,description: MODx.expandHelp ? '' : _('action_desc')
-                    ,name: 'action_id'
-                    ,hiddenName: 'action_id'
-                    ,xtype: 'textfield'
-                    ,anchor: '100%'
-                    ,id: this.ident+'-action-id'
-                    //,allowBlank: false
-                },{
-                    xtype: MODx.expandHelp ? 'label' : 'hidden'
-                    ,forId: this.ident+'-action-id'
-                    ,html: _('action_desc')
-                    ,cls: 'desc-under'
-                },{
-                    fieldLabel: _('parameters')
-                    ,description: MODx.expandHelp ? '' : _('parameters_desc')
-                    ,name: 'params'
-                    ,xtype: 'textfield'
-                    ,anchor: '100%'
-                    ,id: this.ident+'-params'
-                },{
-                    xtype: MODx.expandHelp ? 'label' : 'hidden'
-                    ,forId: this.ident+'-params'
-                    ,html: _('parameters_desc')
-                    ,cls: 'desc-under'
-                },{
-                    fieldLabel: _('namespace')
-                    ,description: MODx.expandHelp ? '' : _('namespace_desc')
-                    ,name: 'namespace'
-                    ,xtype: 'textfield'
-                    ,anchor: '100%'
-                    ,value: 'core'
-                    ,id: this.ident+'-namespace'
-                },{
-                    xtype: MODx.expandHelp ? 'label' : 'hidden'
-                    ,forId: this.ident+'-namespace'
-                    ,html: _('namespace_desc')
-                    ,cls: 'desc-under'
-                },{
-                    fieldLabel: _('icon')
-                    ,description: MODx.expandHelp ? '' : _('icon_desc')
-                    ,name: 'icon'
-                    ,xtype: 'textfield'
-                    ,anchor: '100%'
-                    ,id: this.ident+'-icon'
-                },{
-                    xtype: MODx.expandHelp ? 'label' : 'hidden'
-                    ,forId: this.ident+'-icon'
-                    ,html: _('icon_desc')
-                    ,cls: 'desc-under'
-                }]
-            }]
+            fieldLabel: _('testing.name')
+            ,name: 'name'
+            ,xtype: 'textfield'
+            ,allowBlank: false
+            ,anchor: '100%'
         }]
     });
-    MODx.window.CreateMenu.superclass.constructor.call(this,config);
+    
+    Testing.window.CreateCategory.superclass.constructor.call(this,config);
 };
-Ext.extend(MODx.window.CreateMenu,MODx.Window);
-Ext.reg('modx-window-menu-create',MODx.window.CreateMenu);
+Ext.extend(Testing.window.CreateCategory, MODx.Window);
+Ext.reg('testing-window-category-create', Testing.window.CreateCategory);
 
 /**
- * Generates the Update Menu window
- *
- * @class MODx.window.UpdateMenu
- * @extends MODx.window.CreateMenu
- * @constructor
- * @param {Object} config An object of options.
- * @xtype window-menu-update
+ * This code overrides the window used to create a new category.
  */
-MODx.window.UpdateMenu = function(config) {
+Testing.window.UpdateCategory = function(config) {
     config = config || {};
-    Ext.applyIf(config,{
-        title: _('menu_update')
-        ,action: 'system/menu/update'
-    });
-    MODx.window.UpdateMenu.superclass.constructor.call(this,config);
-};
-Ext.extend(MODx.window.UpdateMenu,MODx.window.CreateMenu);
-Ext.reg('modx-window-menu-update',MODx.window.UpdateMenu);
-
-/**
- * Displays a dropdown of modMenus
- *
- * @class MODx.combo.Menu
- * @extends MODx.combo.ComboBox
- * @param {Object} config An object of options.
- * @xtype modx-combo-menu
- */
-MODx.combo.Menu = function(config) {
-    config = config || {};
-    Ext.applyIf(config,{
-        name: 'menu'
-        ,hiddenName: 'menu'
-        ,url: MODx.config.connector_url
+    Ext.applyIf(config, {
+        title: _('testing.category_update')
         ,baseParams: {
-            action: 'system/menu/getlist'
+            action: 'mgr/update'
+            ,id: config.record.id
+        }
+    });
+    Testing.window.UpdateCategory.superclass.constructor.call(this, config);
+};
+Ext.extend(Testing.window.UpdateCategory, Testing.window.CreateCategory);
+Ext.reg('testing-window-category-update', Testing.window.UpdateCategory);
+
+/**
+ * This code creates the combobox/dropdown menu for selecting
+ * parent categories.
+ */
+Testing.combo.Categories = function(config) {
+    config = config || {};
+    Ext.applyIf(config,{
+        hiddenName: 'parent'
+        ,url: Testing.config.connectorUrl
+        ,baseParams: {
+            action: 'mgr/getParents'
             ,combo: true
             ,limit: 0
             ,showNone: true
         }
-        ,fields: ['text','text_lex']
-        ,displayField: 'text_lex'
-        ,valueField: 'text'
-        // ,listWidth: 300
+        ,fields: ['id','name']
+        ,displayField: 'name'
+        ,valueField: 'id'
         ,editable: false
+        ,emptyText: _('testing.no_parents')
     });
-    MODx.combo.Menu.superclass.constructor.call(this,config);
+    Testing.combo.Categories.superclass.constructor.call(this, config);
 };
-Ext.extend(MODx.combo.Menu,MODx.combo.ComboBox);
-Ext.reg('modx-combo-menu',MODx.combo.Menu);
+Ext.extend(Testing.combo.Categories, MODx.combo.ComboBox);
+Ext.reg('testing-combo-categories', Testing.combo.Categories);
