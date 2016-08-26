@@ -33,7 +33,7 @@ Ext.extend(MODx.tree.Menu, MODx.tree.Tree, {
             parent: null
         };
         if (this.cm && this.cm.activeNode && this.cm.activeNode.attributes && this.cm.activeNode.attributes.data) {
-            r['parent'] = this.cm.activeNode.attributes.data.text;
+            r['parent'] = this.cm.activeNode.attributes.data.id;
         }
         if (!this.windows.create_category) {
             this.windows.create_category = MODx.load({
@@ -95,28 +95,59 @@ Ext.extend(MODx.tree.Menu, MODx.tree.Tree, {
         });
     }
 
-    ,getMenu: function(n,e) {
+    ,getMenu: function(n, e) {
         var m = [];
-        switch (n.attributes.type) {
-            case 'menu':
-                m.push({
-                    text: _('testing.category_update')
-                    ,handler: this.updateCategory
-                });
-                m.push('-');
-                m.push({
-                    text: _('testing.category_remove')
-                    ,handler: this.removeCategory
-                });
-                break;
-            default:
-                m.push({
-                    text: _('testing.category_create')
-                    ,handler: this.createCategory
-                });
-                break;
+        
+        // If the node we right click on has no parent, allow to create a category here
+        if (n.attributes.data.parent == null) {
+            m.push({
+                text: _('testing.category_create')
+                ,handler: this.createCategory
+            });
         }
+        
+        // We're always going to allow updating a category
+        m.push({
+            text: _('testing.category_update')
+            ,handler: this.updateCategory
+        });
+        
+        // This is simply a separator in the menu
+        m.push('-');
+        
+        // At the bottom we'll have the "dangerous" stuff
+        m.push({
+            text: _('testing.category_remove')
+            ,handler: this.removeCategory
+        });
+        
         return m;
+    }
+    
+    ,_handleDrop: function(dropEvent) {
+        // Let's shortcut things
+        var drop_node = dropEvent.dropNode;
+        var traget_node = dropEvent.target;
+        
+        // If the event is "append" we are just adding a new child in a list, not ON a parent, hence we can ignore it
+        if (dropEvent.point == 'append') {
+            return false;
+        }
+        
+        // If our drop node has children AND the target node's parent is not the "root" we are attempting to drop at
+        // another node, which results in too many levels of categories. Simply returning false here will disable dropping
+        // in this position
+        if (traget_node.parentNode.id != 'root' && drop_node.childNodes.length > 0) {
+            return false;
+        }
+        
+        // This is just the code from modx.tree.js to implement some basic functionality
+        if (!Ext.isEmpty(drop_node.attributes.treeHandler)) {
+            var h = Ext.getCmp(drop_node.attributes.treeHandler);
+            if (h) {
+                return h.handleDrop(this, dropEvent);
+            }
+        }
     }
 });
 Ext.reg('modx-tree-menu',MODx.tree.Menu);
