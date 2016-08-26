@@ -120,12 +120,12 @@ Testing.window.CreateCategory = function(config) {
     
     Ext.applyIf(config, {
         title: _('testing.category_create')
-        ,url: MODx.config.connector_url
-        ,action: 'system/menu/create'
+        ,url: Testing.config.connectorUrl
+        ,action: 'mgr/create'
         ,fields: [{
             fieldLabel: _('testing.parent')
             ,name: 'parent'
-            ,xtype: 'modx-combo-menu'
+            ,xtype: 'testing-combo-categories'
             ,anchor: '100%'
         },{
             fieldLabel: _('testing.name')
@@ -162,32 +162,27 @@ Ext.extend(MODx.window.UpdateMenu,MODx.window.CreateCategory);
 Ext.reg('modx-window-menu-update',MODx.window.UpdateMenu);
 
 /**
- * Displays a dropdown of modMenus
- *
- * @class MODx.combo.Menu
- * @extends MODx.combo.ComboBox
- * @param {Object} config An object of options.
- * @xtype modx-combo-menu
+ * This code creates the combobox/dropdown menu for selecting
+ * parent categories.
  */
-MODx.combo.Menu = function(config) {
+Testing.combo.Categories = function(config) {
     config = config || {};
     Ext.applyIf(config,{
-        name: 'menu'
-        ,hiddenName: 'menu'
-        ,url: MODx.config.connector_url
+        hiddenName: 'parent'
+        ,url: Testing.config.connectorUrl
         ,baseParams: {
-            action: 'system/menu/getlist'
+            action: 'mgr/getParents'
             ,combo: true
             ,limit: 0
             ,showNone: true
         }
-        ,fields: ['text','text_lex']
-        ,displayField: 'text_lex'
-        ,valueField: 'text'
-        // ,listWidth: 300
+        ,fields: ['id','name']
+        ,displayField: 'name'
+        ,valueField: 'id'
         ,editable: false
+        ,emptyText: _('testing.no_parents')
     });
-    MODx.combo.Menu.superclass.constructor.call(this,config);
+    Testing.combo.Categories.superclass.constructor.call(this, config);
 };
-Ext.extend(MODx.combo.Menu,MODx.combo.ComboBox);
-Ext.reg('modx-combo-menu',MODx.combo.Menu);
+Ext.extend(Testing.combo.Categories, MODx.combo.ComboBox);
+Ext.reg('testing-combo-categories', Testing.combo.Categories);
