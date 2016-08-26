@@ -25,7 +25,7 @@ Testing.panel.Home = function(config) {
                     ,border: false
                     ,bodyCssClass: 'panel-desc'
                 }, {
-                    xtype: 'modx-tree-menu'
+                    xtype: 'testing-tree-categories'
                     ,cls: 'main-wrapper'
                     ,preventRender: true
                 }]
