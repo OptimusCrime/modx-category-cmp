@@ -30,7 +30,7 @@ Ext.extend(Testing.tree.Categories, MODx.tree.Tree, {
 
     ,createCategory: function(n,e) {
         var r = {
-            parent: ''
+            parent: null
         };
         if (this.cm && this.cm.activeNode && this.cm.activeNode.attributes && this.cm.activeNode.attributes.data) {
             r['parent'] = this.cm.activeNode.attributes.data.text;
@@ -54,21 +54,27 @@ Ext.extend(Testing.tree.Categories, MODx.tree.Tree, {
         this.windows.create_category.show(e.target);
     }
 
-    ,updateMenu: function(n,e) {
+    ,updateCategory: function(n,e) {
         var r = this.cm.activeNode.attributes.data;
-        Ext.apply(r,{
-            action_id: r.action
-            ,new_text: r.text
+        Ext.apply(r, {
+            id: r.id
+            ,text: r.text
         });
-        this.windows.update_menu = MODx.load({
-            xtype: 'modx-window-menu-update'
+        
+        this.windows.update_category = MODx.load({
+            xtype: 'testing-window-category-update'
             ,record: r
             ,listeners: {
-                'success': {fn:function(r) { this.refresh(); },scope:this}
+                'success': {
+                    fn:function(r) {
+                        this.refresh(); 
+                    }
+                    ,scope:this
+                }
             }
         });
-        this.windows.update_menu.setValues(r);
-        this.windows.update_menu.show(e.target);
+        this.windows.update_category.setValues(r);
+        this.windows.update_category.show(e.target);
     }
 
     ,removeMenu: function(n,e) {
@@ -91,8 +97,8 @@ Ext.extend(Testing.tree.Categories, MODx.tree.Tree, {
         switch (n.attributes.type) {
             case 'menu':
                 m.push({
-                    text: _('menu_update')
-                    ,handler: this.updateMenu
+                    text: _('testing.category_update')
+                    ,handler: this.updateCategory
                 });
                 m.push('-');
                 m.push({
@@ -142,24 +148,21 @@ Ext.extend(Testing.window.CreateCategory, MODx.Window);
 Ext.reg('testing-window-category-create', Testing.window.CreateCategory);
 
 /**
- * Generates the Update Menu window
- *
- * @class MODx.window.UpdateMenu
- * @extends MODx.window.CreateMenu
- * @constructor
- * @param {Object} config An object of options.
- * @xtype window-menu-update
+ * This code overrides the window used to create a new category.
  */
-MODx.window.UpdateMenu = function(config) {
+Testing.window.UpdateCategory = function(config) {
     config = config || {};
-    Ext.applyIf(config,{
-        title: _('menu_update')
-        ,action: 'system/menu/update'
+    Ext.applyIf(config, {
+        title: _('testing.category_update')
+        ,baseParams: {
+            action: 'mgr/update'
+            ,id: config.record.id
+        }
     });
-    MODx.window.UpdateMenu.superclass.constructor.call(this,config);
+    Testing.window.UpdateCategory.superclass.constructor.call(this, config);
 };
-Ext.extend(MODx.window.UpdateMenu,MODx.window.CreateCategory);
-Ext.reg('modx-window-menu-update',MODx.window.UpdateMenu);
+Ext.extend(Testing.window.UpdateCategory, Testing.window.CreateCategory);
+Ext.reg('testing-window-category-update', Testing.window.UpdateCategory);
 
 /**
  * This code creates the combobox/dropdown menu for selecting
